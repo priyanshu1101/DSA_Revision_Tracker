@@ -12,6 +12,7 @@ import RevisionPage from './components/RevisionPage';
 import ConqueredPage from './components/ConqueredPage';
 import AnalyticsPage from './components/AnalyticsPage';
 import { Plus, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 function App() {
   const [problems, setProblems] = useLocalStorage<Problem[]>('dsa-problems', []);
@@ -110,14 +111,54 @@ function App() {
   };
 
   const exportData = () => {
-    const dataStr = JSON.stringify(problems, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'dsa-problems.json';
-    link.click();
-    URL.revokeObjectURL(url);
+    // Prepare main problems data
+    const mainData = problems.map(problem => ({
+      'Problem ID': problem.id,
+      'Title': problem.title,
+      'Platform': problem.platform,
+      'Difficulty': problem.difficulty,
+      'Topic': problem.topic,
+      'URL': problem.url || '',
+      'Status': problem.isConquered ? 'Conquered' : problem.attempts > 0 ? 'In Practice' : 'Not Started',
+      'Total Attempts': problem.attempts,
+      'Consecutive Correct': problem.consecutiveCorrect,
+      'Consecutive Easy': problem.consecutiveEasy,
+      'Ease Factor': problem.easeFactor,
+      'Interval (Days)': problem.interval,
+      'Is Conquered': problem.isConquered ? 'Yes' : 'No',
+      'Next Review Date': problem.nextReviewDate || '',
+      'Last Practiced': problem.lastPracticed || '',
+      'Notes': problem.notes || '',
+      'Created At': problem.createdAt,
+      'Updated At': problem.updatedAt
+    }));
+
+    // Prepare review history data
+    const historyData = problems.flatMap(problem => 
+      problem.reviewHistory.map(review => ({
+        'Problem ID': problem.id,
+        'Problem Title': problem.title,
+        'Review Date': review.date,
+        'Was Correct': review.wasCorrect ? 'Yes' : 'No',
+        'Difficulty': review.difficulty,
+        'Time Spent (min)': review.timeSpent || '',
+        'Notes': review.notes || ''
+      }))
+    );
+
+    // Create workbook with multiple sheets
+    const wb = XLSX.utils.book_new();
+    
+    // Add main problems sheet
+    const ws1 = XLSX.utils.json_to_sheet(mainData);
+    XLSX.utils.book_append_sheet(wb, ws1, 'Problems');
+    
+    // Add review history sheet
+    const ws2 = XLSX.utils.json_to_sheet(historyData);
+    XLSX.utils.book_append_sheet(wb, ws2, 'Review History');
+    
+    // Generate and download Excel file
+    XLSX.writeFile(wb, 'dsa-problems-export.xlsx');
   };
 
   return (

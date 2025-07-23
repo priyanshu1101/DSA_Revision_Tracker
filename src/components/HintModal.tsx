@@ -40,7 +40,7 @@ const HintModal: React.FC<HintModalProps> = ({ isOpen, onClose, problem }) => {
         <div className="p-6">
           <h3 className="font-semibold text-gray-900 mb-4">{problem.title}</h3>
           
-          {hasHint ? (
+          {hasHint || lastSuccessfulAttempt ? (
             <div className="space-y-4">
               {problem.notes && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -49,7 +49,7 @@ const HintModal: React.FC<HintModalProps> = ({ isOpen, onClose, problem }) => {
                 </div>
               )}
               
-              {lastSuccessfulAttempt?.notes && (
+              {!problem.notes && lastSuccessfulAttempt?.notes && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                   <h4 className="font-semibold text-green-900 mb-2">
                     Last Successful Approach ({new Date(lastSuccessfulAttempt.date).toLocaleDateString()}):
@@ -57,6 +57,23 @@ const HintModal: React.FC<HintModalProps> = ({ isOpen, onClose, problem }) => {
                   <p className="text-green-800 whitespace-pre-wrap">{lastSuccessfulAttempt.notes}</p>
                 </div>
               )}
+              
+              {!problem.notes && !lastSuccessfulAttempt?.notes && (() => {
+                // Find any previous correct attempt with notes
+                const previousCorrectWithNotes = problem.reviewHistory
+                  .slice()
+                  .reverse()
+                  .find(review => review.wasCorrect && review.notes);
+                
+                return previousCorrectWithNotes ? (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <h4 className="font-semibold text-green-900 mb-2">
+                      Previous Successful Approach ({new Date(previousCorrectWithNotes.date).toLocaleDateString()}):
+                    </h4>
+                    <p className="text-green-800 whitespace-pre-wrap">{previousCorrectWithNotes.notes}</p>
+                  </div>
+                ) : null;
+              })()}
             </div>
           ) : (
             <div className="text-center py-8">

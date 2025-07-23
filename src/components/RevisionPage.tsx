@@ -318,13 +318,6 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
               {currentProblem.title}
             </h2>
 
-            {currentProblem.notes && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-                <h3 className="font-semibold text-yellow-800 mb-2">Your Notes:</h3>
-                <p className="text-yellow-700">{currentProblem.notes}</p>
-              </div>
-            )}
-
             <div className="bg-gray-50 rounded-lg p-4 mb-8">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div>
@@ -374,13 +367,15 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
 
             {/* Action Buttons */}
             <div className="flex justify-center space-x-4 mb-6">
-              <button
-                onClick={handleShowHint}
-                className="flex items-center space-x-2 px-4 py-2 text-blue-600 border border-blue-300 rounded-lg hover:bg-blue-50 transition-colors"
-              >
-                <Lightbulb className="h-4 w-4" />
-                <span>Show Hint</span>
-              </button>
+              {(currentProblem.notes || currentProblem.reviewHistory.some(r => r.wasCorrect && r.notes)) && (
+                <button
+                  onClick={handleShowHint}
+                  className="flex items-center space-x-2 px-4 py-2 text-blue-600 border border-blue-300 rounded-lg hover:bg-blue-50 transition-colors"
+                >
+                  <Lightbulb className="h-4 w-4" />
+                  <span>Show Hint</span>
+                </button>
+              )}
               
               {currentProblem.reviewHistory.length > 0 && (
                 <button
@@ -411,6 +406,14 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
               
               <div className="space-y-4">
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <button
+                    onClick={() => handleReviewWithNotes(true, 'Hard')}
+                    className="flex items-center justify-center space-x-2 px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors shadow-md"
+                  >
+                    <Brain className="h-5 w-5" />
+                    <span>Solved with Difficulty</span>
+                  </button>
+                  
                   {!hasUsedHint && (
                     <button
                       onClick={() => handleReviewWithNotes(true, 'Easy')}
@@ -420,14 +423,6 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
                       <span>Solved Easily</span>
                     </button>
                   )}
-                  
-                  <button
-                    onClick={() => handleReviewWithNotes(true, 'Hard')}
-                    className="flex items-center justify-center space-x-2 px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors shadow-md"
-                  >
-                    <Brain className="h-5 w-5" />
-                    <span>Solved with Difficulty</span>
-                  </button>
                 </div>
                 
                 <button
