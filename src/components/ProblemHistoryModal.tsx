@@ -6,9 +6,10 @@ interface ProblemHistoryModalProps {
   isOpen: boolean;
   onClose: () => void;
   problem: Problem;
+  showNotes?: boolean;
 }
 
-const ProblemHistoryModal: React.FC<ProblemHistoryModalProps> = ({ isOpen, onClose, problem }) => {
+const ProblemHistoryModal: React.FC<ProblemHistoryModalProps> = ({ isOpen, onClose, problem, showNotes = true }) => {
   if (!isOpen) return null;
 
   const sortedHistory = [...problem.reviewHistory].sort((a, b) => 
@@ -129,9 +130,10 @@ const ProblemHistoryModal: React.FC<ProblemHistoryModalProps> = ({ isOpen, onClo
                         </div>
                       )}
                     </div>
-                    {review.notes && (
-                      <div className="bg-gray-50 rounded p-3 mt-2">
-                        <p className="text-sm text-gray-700 whitespace-pre-wrap">{review.notes}</p>
+                    {showNotes && review.notes && (
+                      <div className="mt-2 p-3 bg-gray-50 rounded-lg">
+                        <h5 className="text-sm font-medium text-gray-700 mb-1">Notes:</h5>
+                        <p className="text-sm text-gray-600 whitespace-pre-wrap">{review.notes}</p>
                       </div>
                     )}
                   </div>

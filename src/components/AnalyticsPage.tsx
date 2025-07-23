@@ -11,7 +11,7 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ problems }) => {
   const analytics = useMemo(() => {
     const totalProblems = problems.length;
     const conqueredProblems = problems.filter(p => p.isConquered).length;
-    const activePractice = problems.filter(p => !p.isConquered && p.attempts > 0).length;
+    const inPractice = problems.filter(p => !p.isConquered && p.attempts > 0).length;
     
     // Topic distribution
     const topicStats = problems.reduce((acc, problem) => {
@@ -63,7 +63,7 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ problems }) => {
     return {
       totalProblems,
       conqueredProblems,
-      activePractice,
+      inPractice,
       topicStats,
       difficultyStats,
       recentActivity,

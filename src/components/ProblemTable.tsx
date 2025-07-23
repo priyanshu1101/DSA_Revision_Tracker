@@ -1,6 +1,6 @@
 import React from 'react';
 import { Problem } from '../types';
-import { ExternalLink, Edit2, Trash2, Clock, History } from 'lucide-react';
+import { ExternalLink, Edit2, Trash2, Clock, History, TrendingUp } from 'lucide-react';
 import ProblemHistoryModal from './ProblemHistoryModal';
 
 interface ProblemTableProps {
@@ -49,6 +49,12 @@ const ProblemTable: React.FC<ProblemTableProps> = ({ problems, onEdit, onDelete,
     return { text: 'Practicing', color: 'bg-yellow-100 text-yellow-800' };
   };
 
+  const getSuccessRate = (problem: Problem) => {
+    if (problem.reviewHistory.length === 0) return 0;
+    const correctAttempts = problem.reviewHistory.filter(r => r.wasCorrect).length;
+    return Math.round((correctAttempts / problem.reviewHistory.length) * 100);
+  };
+
   if (problems.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
@@ -83,7 +89,13 @@ const ProblemTable: React.FC<ProblemTableProps> = ({ problems, onEdit, onDelete,
                 Status
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Attempts
+                Streak
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Success Rate
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Next Review
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Last Practiced
@@ -126,12 +138,40 @@ const ProblemTable: React.FC<ProblemTableProps> = ({ problems, onEdit, onDelete,
                   {problem.topic}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusDisplay(problem).color}`}>
-                    {getStatusDisplay(problem).text}
+                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                    problem.isConquered ? 'bg-yellow-100 text-yellow-800' :
+                    problem.attempts > 0 ? 'bg-blue-100 text-blue-800' :
+                    'bg-gray-100 text-gray-800'
+                  }`}>
+                    {problem.isConquered ? 'Conquered' : 
+                     problem.attempts > 0 ? 'In Practice' : 
+                     'Not Started'}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="text-sm text-gray-900">{problem.attempts}</span>
+                  <div className="text-sm text-gray-900">
+                    <div>Easy: {problem.consecutiveEasy}</div>
+                    <div>Correct: {problem.consecutiveCorrect}</div>
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center space-x-2">
+                    <TrendingUp className={`h-4 w-4 ${
+                      getSuccessRate(problem) >= 80 ? 'text-green-500' :
+                      getSuccessRate(problem) >= 60 ? 'text-yellow-500' :
+                      'text-red-500'
+                    }`} />
+                    <span className={`text-sm font-medium ${
+                      getSuccessRate(problem) >= 80 ? 'text-green-600' :
+                      getSuccessRate(problem) >= 60 ? 'text-yellow-600' :
+                      'text-red-600'
+                    }`}>
+                      {getSuccessRate(problem)}%
+                    </span>
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {problem.nextReviewDate ? new Date(problem.nextReviewDate).toLocaleDateString() : '-'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {problem.lastPracticed ? new Date(problem.lastPracticed).toLocaleDateString() : '-'}
@@ -169,6 +209,7 @@ const ProblemTable: React.FC<ProblemTableProps> = ({ problems, onEdit, onDelete,
         isOpen={historyModal.isOpen}
         onClose={() => setHistoryModal({ isOpen: false, problem: null })}
         problem={historyModal.problem!}
+        showNotes={true}
       />
     </div>
   );

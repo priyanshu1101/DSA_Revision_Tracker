@@ -25,6 +25,7 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
   const [showNotesModal, setShowNotesModal] = useState(false);
   const [pendingReviewNotes, setPendingReviewNotes] = useState<{ wasCorrect: boolean; difficulty: 'Easy' | 'Hard' } | null>(null);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [usedHints, setUsedHints] = useState<Set<string>>(new Set());
   const [hasUsedHint, setHasUsedHint] = useState(false);
   
   const [sessionStats, setSessionStats] = useState({
@@ -38,12 +39,11 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
     setTodayProblems(problemsForToday);
     setCurrentProblemIndex(0);
     setShowResult(false);
-    setHasUsedHint(false);
+    setUsedHints(new Set());
   }, [problems]);
 
   useEffect(() => {
-    setHasUsedHint(false);
-  }, [currentProblemIndex]);
+  }, []);
 
   const currentProblem = todayProblems[currentProblemIndex];
 
@@ -121,7 +121,7 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
   const resetSession = () => {
     setCurrentProblemIndex(0);
     setShowResult(false);
-    setHasUsedHint(false);
+    setUsedHints(new Set());
     setSessionStats({
       completed: 0,
       correct: 0,
@@ -142,7 +142,7 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
   };
 
   const handleShowHint = () => {
-    setHasUsedHint(true);
+    setUsedHints(prev => new Set([...prev, currentProblem.id]));
     setShowHintModal(true);
   };
 
@@ -318,13 +318,6 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
               {currentProblem.title}
             </h2>
 
-            {currentProblem.notes && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-                <h3 className="font-semibold text-yellow-800 mb-2">Your Notes:</h3>
-                <p className="text-yellow-700">{currentProblem.notes}</p>
-              </div>
-            )}
-
             <div className="bg-gray-50 rounded-lg p-4 mb-8">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div>
@@ -374,13 +367,15 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
 
             {/* Action Buttons */}
             <div className="flex justify-center space-x-4 mb-6">
-              <button
-                onClick={handleShowHint}
-                className="flex items-center space-x-2 px-4 py-2 text-blue-600 border border-blue-300 rounded-lg hover:bg-blue-50 transition-colors"
-              >
-                <Lightbulb className="h-4 w-4" />
-                <span>Show Hint</span>
-              </button>
+              {(currentProblem.notes || currentProblem.reviewHistory.some(r => r.wasCorrect && r.notes)) && (
+                <button
+                  onClick={handleShowHint}
+                  className="flex items-center space-x-2 px-4 py-2 text-blue-600 border border-blue-300 rounded-lg hover:bg-blue-50 transition-colors"
+                >
+                  <Lightbulb className="h-4 w-4" />
+                  <span>Show Hint</span>
+                </button>
+              )}
               
               {currentProblem.reviewHistory.length > 0 && (
                 <button
@@ -409,26 +404,24 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
                 Take your time to solve this problem. Rate your performance honestly to optimize your learning:
               </p>
               
-              <div className="space-y-4">
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  {!hasUsedHint && (
-                    <button
-                      onClick={() => handleReviewWithNotes(true, 'Easy')}
-                      className="flex items-center justify-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-md"
-                    >
-                      <CheckCircle className="h-5 w-5" />
-                      <span>Solved Easily</span>
-                    </button>
-                  )}
-                  
+              <div className="flex flex-col items-center space-y-4">
+                <button
+                  onClick={() => handleReviewWithNotes(true, 'Hard')}
+                  className="flex items-center justify-center space-x-2 px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors shadow-md"
+                >
+                  <Brain className="h-5 w-5" />
+                  <span>Solved with Difficulty</span>
+                </button>
+                
+                {!hasUsedHint && (
                   <button
-                    onClick={() => handleReviewWithNotes(true, 'Hard')}
-                    className="flex items-center justify-center space-x-2 px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors shadow-md"
+                    onClick={() => handleReviewWithNotes(true, 'Easy')}
+                    className="flex items-center justify-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-md"
                   >
-                    <Brain className="h-5 w-5" />
-                    <span>Solved with Difficulty</span>
+                    <CheckCircle className="h-5 w-5" />
+                    <span>Solved Easily</span>
                   </button>
-                </div>
+                )}
                 
                 <button
                   onClick={() => handleReviewWithNotes(false, 'Hard')}
