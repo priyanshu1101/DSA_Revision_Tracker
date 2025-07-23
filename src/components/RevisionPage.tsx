@@ -26,6 +26,7 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
   const [pendingReviewNotes, setPendingReviewNotes] = useState<{ wasCorrect: boolean; difficulty: 'Easy' | 'Hard' } | null>(null);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [usedHints, setUsedHints] = useState<Set<string>>(new Set());
+  const [hasUsedHint, setHasUsedHint] = useState(false);
   
   const [sessionStats, setSessionStats] = useState({
     completed: 0,
@@ -42,7 +43,6 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
   }, [problems]);
 
   useEffect(() => {
-
   }, []);
 
   const currentProblem = todayProblems[currentProblemIndex];
@@ -93,7 +93,7 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
       if (currentProblemIndex < todayProblems.length - 1) {
         setCurrentProblemIndex(prev => prev + 1);
         setShowResult(false);
-        setUsedHints(new Set());
+        setHasUsedHint(false);
       } else {
         // Session complete
         setShowResult(false);
@@ -388,7 +388,7 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
               )}
             </div>
 
-            {usedHints.has(currentProblem.id) && (
+            {hasUsedHint && (
               <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
                 <div className="flex items-center space-x-2">
                   <Eye className="h-5 w-5 text-orange-600" />
@@ -413,7 +413,7 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
                   <span>Solved with Difficulty</span>
                 </button>
                 
-                {!usedHints.has(currentProblem.id) && (
+                {!hasUsedHint && (
                   <button
                     onClick={() => handleReviewWithNotes(true, 'Easy')}
                     className="flex items-center justify-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-md"
