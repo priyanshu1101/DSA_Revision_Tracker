@@ -472,7 +472,6 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
         isOpen={showHistoryModal}
         onClose={() => setShowHistoryModal(false)}
         problem={currentProblem}
-        showNotes={false}
       />
     </div>
   );
