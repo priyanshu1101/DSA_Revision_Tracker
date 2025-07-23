@@ -18,8 +18,8 @@ export class SpacedRepetitionSystem {
 
   // Multipliers for different performance levels
   private static readonly PERFORMANCE_MULTIPLIERS = {
-    EASY_SOLVE: 1.4,
-    HARD_SOLVE: 0.7,
+    EASY_SOLVE: 1.3,
+    HARD_SOLVE: 0.8,
     FAILED_SOLVE: 0.5
   };
 
@@ -65,25 +65,25 @@ export class SpacedRepetitionSystem {
       if (solveDifficulty === 'Easy') {
         newConsecutiveEasy += 1;
         // Increase ease factor for easy solves, more aggressive for early solves
-        const easeIncrease = newConsecutiveEasy <= 3 ? 0.1 : 0.15;
+        const easeIncrease = newConsecutiveEasy <= 3 ? 0.15 : 0.1;
         newEaseFactor = Math.min(this.MAX_EASE_FACTOR, newEaseFactor + easeIncrease);
       } else {
         // Reset consecutive easy count if solved with difficulty
         newConsecutiveEasy = 0;
         // Slightly decrease ease factor for hard solves
-        newEaseFactor = Math.max(this.MIN_EASE_FACTOR, newEaseFactor - 0.08);
+        newEaseFactor = Math.max(this.MIN_EASE_FACTOR, newEaseFactor - 0.1);
       }
 
       // Calculate new interval based on ease factor
       if (newConsecutiveCorrect === 1) {
-        newInterval = solveDifficulty === 'Easy' ? 1 : 1; // Both tomorrow for first solve
+        newInterval = 1; // Always tomorrow for first solve
       } else if (newConsecutiveCorrect === 2) {
-        newInterval = solveDifficulty === 'Easy' ? 3 : 2; // Easy: 3 days, Hard: 2 days
+        newInterval = solveDifficulty === 'Easy' ? 4 : 2; // Easy: 4 days, Hard: 2 days
       } else {
         const multiplier = solveDifficulty === 'Easy' ? this.PERFORMANCE_MULTIPLIERS.EASY_SOLVE : this.PERFORMANCE_MULTIPLIERS.HARD_SOLVE;
-        // Progressive spacing - smaller gaps initially, larger gaps later
-        const progressiveMultiplier = newConsecutiveEasy <= 4 ? 0.8 : 1.2;
-        newInterval = Math.round(newInterval * newEaseFactor * multiplier * progressiveMultiplier);
+        newInterval = Math.round(newInterval * newEaseFactor * multiplier);
+        // Ensure minimum interval of 1 day
+        newInterval = Math.max(1, newInterval);
       }
     } else {
       // Reset on incorrect answer
@@ -99,7 +99,7 @@ export class SpacedRepetitionSystem {
     // Calculate next review date
     const nextReviewDate = new Date();
     if (isConquered) {
-      // If conquered, schedule for much later review (60 days)
+      // If conquered, schedule for maintenance review (60 days)
       nextReviewDate.setDate(nextReviewDate.getDate() + 60);
     } else {
       nextReviewDate.setDate(nextReviewDate.getDate() + newInterval);
@@ -135,7 +135,7 @@ export class SpacedRepetitionSystem {
 
     // Add random conquered problems for maintenance (5% chance per conquered problem)
     const conqueredProblems = problems.filter(p => p.isConquered);
-    const randomConqueredCount = Math.floor(conqueredProblems.length * this.CONQUEST_REVIEW_RATE);
+    const randomConqueredCount = Math.max(0, Math.floor(conqueredProblems.length * this.CONQUEST_REVIEW_RATE));
     
     if (randomConqueredCount > 0) {
       const shuffled = [...conqueredProblems].sort(() => 0.5 - Math.random());
@@ -143,7 +143,7 @@ export class SpacedRepetitionSystem {
       dueProblems = [...dueProblems, ...selectedConquered];
     }
 
-    // Sort by priority: overdue problems first, then by difficulty (harder first for better learning)
+    // Sort by priority: overdue problems first, then by consecutive failures, then by difficulty
     return dueProblems.sort((a, b) => {
       const aOverdue = a.nextReviewDate && a.nextReviewDate < today;
       const bOverdue = b.nextReviewDate && b.nextReviewDate < today;
