@@ -404,26 +404,24 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
                 Take your time to solve this problem. Rate your performance honestly to optimize your learning:
               </p>
               
-              <div className="space-y-4">
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex flex-col items-center space-y-4">
+                <button
+                  onClick={() => handleReviewWithNotes(true, 'Hard')}
+                  className="flex items-center justify-center space-x-2 px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors shadow-md"
+                >
+                  <Brain className="h-5 w-5" />
+                  <span>Solved with Difficulty</span>
+                </button>
+                
+                {!hasUsedHint && (
                   <button
-                    onClick={() => handleReviewWithNotes(true, 'Hard')}
-                    className="flex items-center justify-center space-x-2 px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors shadow-md"
+                    onClick={() => handleReviewWithNotes(true, 'Easy')}
+                    className="flex items-center justify-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-md"
                   >
-                    <Brain className="h-5 w-5" />
-                    <span>Solved with Difficulty</span>
+                    <CheckCircle className="h-5 w-5" />
+                    <span>Solved Easily</span>
                   </button>
-                  
-                  {!hasUsedHint && (
-                    <button
-                      onClick={() => handleReviewWithNotes(true, 'Easy')}
-                      className="flex items-center justify-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-md"
-                    >
-                      <CheckCircle className="h-5 w-5" />
-                      <span>Solved Easily</span>
-                    </button>
-                  )}
-                </div>
+                )}
                 
                 <button
                   onClick={() => handleReviewWithNotes(false, 'Hard')}
