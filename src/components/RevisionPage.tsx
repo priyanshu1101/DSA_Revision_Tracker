@@ -25,7 +25,7 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
   const [showNotesModal, setShowNotesModal] = useState(false);
   const [pendingReviewNotes, setPendingReviewNotes] = useState<{ wasCorrect: boolean; difficulty: 'Easy' | 'Hard' } | null>(null);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
-  const [hasUsedHint, setHasUsedHint] = useState(false);
+  const [usedHints, setUsedHints] = useState<Set<string>>(new Set());
   
   const [sessionStats, setSessionStats] = useState({
     completed: 0,
@@ -38,12 +38,10 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
     setTodayProblems(problemsForToday);
     setCurrentProblemIndex(0);
     setShowResult(false);
-    setHasUsedHint(false);
+    setUsedHints(new Set());
   }, [problems]);
 
   useEffect(() => {
-    setHasUsedHint(false);
-  }, [currentProblemIndex]);
 
   const currentProblem = todayProblems[currentProblemIndex];
 
@@ -142,7 +140,7 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
   };
 
   const handleShowHint = () => {
-    setHasUsedHint(true);
+    setUsedHints(prev => new Set([...prev, currentProblem.id]));
     setShowHintModal(true);
   };
 
@@ -388,7 +386,7 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
               )}
             </div>
 
-            {hasUsedHint && (
+            {usedHints.has(currentProblem.id) && (
               <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
                 <div className="flex items-center space-x-2">
                   <Eye className="h-5 w-5 text-orange-600" />
@@ -413,7 +411,7 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
                   <span>Solved with Difficulty</span>
                 </button>
                 
-                {!hasUsedHint && (
+                {!usedHints.has(currentProblem.id) && (
                   <button
                     onClick={() => handleReviewWithNotes(true, 'Easy')}
                     className="flex items-center justify-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-md"
@@ -472,6 +470,7 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
         isOpen={showHistoryModal}
         onClose={() => setShowHistoryModal(false)}
         problem={currentProblem}
+        showNotes={false}
       />
     </div>
   );
