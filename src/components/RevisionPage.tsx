@@ -43,6 +43,8 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
 
   useEffect(() => {
 
+  }, []);
+
   const currentProblem = todayProblems[currentProblemIndex];
 
   const showToast = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
@@ -91,7 +93,7 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
       if (currentProblemIndex < todayProblems.length - 1) {
         setCurrentProblemIndex(prev => prev + 1);
         setShowResult(false);
-        setHasUsedHint(false);
+        setUsedHints(new Set());
       } else {
         // Session complete
         setShowResult(false);
@@ -119,7 +121,7 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
   const resetSession = () => {
     setCurrentProblemIndex(0);
     setShowResult(false);
-    setHasUsedHint(false);
+    setUsedHints(new Set());
     setSessionStats({
       completed: 0,
       correct: 0,
