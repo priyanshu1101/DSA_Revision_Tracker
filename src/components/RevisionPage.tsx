@@ -500,7 +500,7 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
                 <button
                   onClick={() => handleReviewWithNotes(false, 'Hard')}
                   className="flex items-center justify-center space-x-2 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shadow-md w-full sm:w-auto"
-                  style={{margin:"0 auto"}}
+                  style={{margin:"10px auto"}}
                 >
                   <XCircle className="h-5 w-5" />
                   <span>Couldn't Solve</span>
