@@ -141,6 +141,56 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
     }
   };
 
+  const handleMarkAsConquered = () => {
+    if (!currentProblem) return;
+
+    const today = new Date().toISOString().split('T')[0];
+    const nextReviewDate = new Date();
+    nextReviewDate.setDate(nextReviewDate.getDate() + 60); // 60 days later
+
+    // Create a review session for manual conquest
+    const conquestReview: ReviewSession = {
+      problemId: currentProblem.id,
+      date: today,
+      wasCorrect: true,
+      difficulty: 'Easy',
+      notes: 'Manually marked as conquered'
+    };
+
+    const updatedProblem = {
+      ...currentProblem,
+      isConquered: true,
+      consecutiveEasy: 8, // Set to conquered threshold
+      reviewHistory: [...currentProblem.reviewHistory, conquestReview],
+      nextReviewDate: nextReviewDate.toISOString().split('T')[0],
+      lastPracticed: today,
+      attempts: currentProblem.attempts + 1,
+      updatedAt: new Date().toISOString()
+    };
+
+    onUpdateProblem(currentProblem.id, updatedProblem);
+
+    setSessionStats(prev => ({
+      ...prev,
+      completed: prev.completed + 1,
+      correct: prev.correct + 1
+    }));
+
+    showToast('👑 Problem marked as conquered! It will appear much less frequently now.', 'success');
+    setShowResult(true);
+
+    // Auto-advance to next problem after 2 seconds
+    setTimeout(() => {
+      if (currentProblemIndex < todayProblems.length - 1) {
+        setCurrentProblemIndex(prev => prev + 1);
+        setShowResult(false);
+        setHasUsedHint(false);
+      } else {
+        setShowResult(false);
+      }
+    }, 2000);
+  };
+
   const handleShowHint = () => {
     setHasUsedHint(true);
     setShowHintModal(true);

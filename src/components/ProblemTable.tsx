@@ -148,12 +148,14 @@ const ProblemTable: React.FC<ProblemTableProps> = ({ problems, onEdit, onDelete,
                     <button
                       onClick={() => onEdit(problem)}
                       className="text-blue-600 hover:text-blue-800 p-1 hover:bg-blue-50 rounded transition-colors"
+                      title="Edit Problem"
                     >
                       <Edit2 className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => onDelete(problem.id)}
                       className="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded transition-colors"
+                      title="Delete Problem"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>

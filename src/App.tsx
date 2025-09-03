@@ -63,7 +63,11 @@ function App() {
       // Update existing problem
       setProblems(prev => prev.map(p => 
         p.id === editingProblem.id 
-          ? { ...problemData, id: editingProblem.id, createdAt: editingProblem.createdAt, updatedAt: now }
+          ? { 
+              ...p,
+              ...problemData,
+              updatedAt: now
+            }
           : p
       ));
       setEditingProblem(undefined);

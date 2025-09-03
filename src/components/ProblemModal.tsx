@@ -57,6 +57,13 @@ const ProblemModal: React.FC<ProblemModalProps> = ({ isOpen, onClose, onSave, pr
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate required fields
+    if (!formData.title.trim() || !formData.platform.trim() || !formData.topic.trim()) {
+      alert('Please fill in all required fields');
+      return;
+    }
+    
     onSave(formData);
     onClose();
   };
