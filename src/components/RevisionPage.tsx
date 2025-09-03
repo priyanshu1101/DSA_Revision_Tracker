@@ -526,6 +526,7 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
                   <button
                   onClick={skipToNext}
                   className="flex items-center justify-center space-x-1 text-gray-600 hover:text-gray-800 text-sm underline"
+                    style={{margin:"10px auto"}}
                   >
                   <RotateCcw className="h-3 w-3" />
                   Skip for now
