@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Problem, ReviewSession } from '../types';
 import { SpacedRepetitionSystem } from '../utils/spacedRepetition';
-import { Clock, CheckCircle, XCircle, ExternalLink, Brain, Target, Trophy, RotateCcw, Lightbulb, History, AlertTriangle, Eye } from 'lucide-react';
+import { Clock, CheckCircle, XCircle, ExternalLink, Brain, Target, Trophy, RotateCcw, Lightbulb, History, AlertTriangle, Eye, Crown } from 'lucide-react';
 import Toast from './Toast';
 import HintModal from './HintModal';
 import ReviewNotesModal from './ReviewNotesModal';
@@ -437,6 +437,22 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
                   <XCircle className="h-5 w-5" />
                   <span>Couldn't Solve</span>
                 </button>
+                
+                {/* Mark as Conquered option */}
+                {currentProblem.consecutiveCorrect >= 2 && !currentProblem.isConquered && (
+                  <div className="pt-4 border-t border-gray-200">
+                    <p className="text-sm text-gray-600 mb-3">
+                      Feel confident about this problem? Mark it as conquered to reduce review frequency.
+                    </p>
+                    <button
+                      onClick={() => handleMarkAsConquered()}
+                      className="flex items-center justify-center space-x-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors shadow-md"
+                    >
+                      <Trophy className="h-5 w-5" />
+                      <span>Mark as Conquered</span>
+                    </button>
+                  </div>
+                )}
                 
                 <button
                   onClick={skipToNext}
