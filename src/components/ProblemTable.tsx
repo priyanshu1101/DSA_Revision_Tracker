@@ -1,6 +1,6 @@
 import React from 'react';
 import { Problem } from '../types';
-import { ExternalLink, Edit2, Trash2, Clock, History } from 'lucide-react';
+import { ExternalLink, Edit2, Trash2, Clock, History, Crown } from 'lucide-react';
 import ProblemHistoryModal from './ProblemHistoryModal';
 
 interface ProblemTableProps {
@@ -159,6 +159,27 @@ const ProblemTable: React.FC<ProblemTableProps> = ({ problems, onEdit, onDelete,
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
+                    {!problem.isConquered && problem.consecutiveCorrect >= 2 && (
+                      <button
+                        onClick={() => {
+                          const today = new Date().toISOString().split('T')[0];
+                          const nextReviewDate = new Date();
+                          nextReviewDate.setDate(nextReviewDate.getDate() + 60);
+                          
+                          onQuickUpdate(problem.id, {
+                            isConquered: true,
+                            consecutiveEasy: 8,
+                            nextReviewDate: nextReviewDate.toISOString().split('T')[0],
+                            lastPracticed: today,
+                            updatedAt: new Date().toISOString()
+                          });
+                        }}
+                        className="text-purple-600 hover:text-purple-800 p-1 hover:bg-purple-50 rounded transition-colors"
+                        title="Mark as Conquered"
+                      >
+                        <Crown className="h-4 w-4" />
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>

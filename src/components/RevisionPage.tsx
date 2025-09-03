@@ -88,14 +88,23 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
 
     setShowResult(true);
 
+    // Update the today problems list to remove the current problem
+    const updatedTodayProblems = todayProblems.filter((_, index) => index !== currentProblemIndex);
+    setTodayProblems(updatedTodayProblems);
+    
     // Auto-advance to next problem after 2 seconds
     setTimeout(() => {
-      if (currentProblemIndex < todayProblems.length - 1) {
-        setCurrentProblemIndex(prev => prev + 1);
+      if (currentProblemIndex < updatedTodayProblems.length) {
+        // Stay at the same index since we removed the current problem
+        setShowResult(false);
+        setHasUsedHint(false);
+      } else if (updatedTodayProblems.length > 0) {
+        // If we're at the end, go to the last available problem
+        setCurrentProblemIndex(updatedTodayProblems.length - 1);
         setShowResult(false);
         setHasUsedHint(false);
       } else {
-        // Session complete
+        // Session complete - no more problems
         setShowResult(false);
       }
     }, 2000);
@@ -108,14 +117,12 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
       return;
     }
 
-    if (currentProblemIndex < todayProblems.length - 1) {
-      setCurrentProblemIndex(prev => prev + 1);
-      setShowResult(false);
-      showToast('Problem skipped. It will appear in tomorrow\'s revision.', 'warning');
-    } else {
-      // This shouldn't happen due to the check above, but just in case
-      showToast('No more problems to skip to.', 'warning');
-    }
+    // Move to next problem or wrap around
+    const nextIndex = (currentProblemIndex + 1) % todayProblems.length;
+    setCurrentProblemIndex(nextIndex);
+    setShowResult(false);
+    setHasUsedHint(false);
+    showToast('Problem skipped. It will appear in tomorrow\'s revision.', 'warning');
   };
 
   const resetSession = () => {
@@ -179,13 +186,23 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
     showToast('👑 Problem marked as conquered! It will appear much less frequently now.', 'success');
     setShowResult(true);
 
+    // Update the today problems list to remove the current problem
+    const updatedTodayProblems = todayProblems.filter((_, index) => index !== currentProblemIndex);
+    setTodayProblems(updatedTodayProblems);
+    
     // Auto-advance to next problem after 2 seconds
     setTimeout(() => {
-      if (currentProblemIndex < todayProblems.length - 1) {
-        setCurrentProblemIndex(prev => prev + 1);
+      if (currentProblemIndex < updatedTodayProblems.length) {
+        // Stay at the same index since we removed the current problem
+        setShowResult(false);
+        setHasUsedHint(false);
+      } else if (updatedTodayProblems.length > 0) {
+        // If we're at the end, go to the last available problem
+        setCurrentProblemIndex(updatedTodayProblems.length - 1);
         setShowResult(false);
         setHasUsedHint(false);
       } else {
+        // Session complete - no more problems
         setShowResult(false);
       }
     }, 2000);
@@ -460,11 +477,11 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
               </p>
               
               <div className="space-y-4">
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                   {!hasUsedHint && (
                     <button
                       onClick={() => handleReviewWithNotes(true, 'Easy')}
-                      className="flex items-center justify-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-md"
+                      className="flex items-center justify-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-md w-full sm:w-auto"
                     >
                       <CheckCircle className="h-5 w-5" />
                       <span>Solved Easily</span>
@@ -473,7 +490,7 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
                   
                   <button
                     onClick={() => handleReviewWithNotes(true, 'Hard')}
-                    className="flex items-center justify-center space-x-2 px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors shadow-md"
+                    className="flex items-center justify-center space-x-2 px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors shadow-md w-full sm:w-auto"
                   >
                     <Brain className="h-5 w-5" />
                     <span>Solved with Difficulty</span>
@@ -482,7 +499,7 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
                 
                 <button
                   onClick={() => handleReviewWithNotes(false, 'Hard')}
-                  className="flex items-center justify-center space-x-2 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shadow-md"
+                  className="flex items-center justify-center space-x-2 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shadow-md w-full sm:w-auto"
                 >
                   <XCircle className="h-5 w-5" />
                   <span>Couldn't Solve</span>
@@ -490,13 +507,13 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
                 
                 {/* Mark as Conquered option */}
                 {currentProblem.consecutiveCorrect >= 2 && !currentProblem.isConquered && (
-                  <div className="pt-4 border-t border-gray-200">
+                  <div className="pt-4 border-t border-gray-200 w-full">
                     <p className="text-sm text-gray-600 mb-3">
                       Feel confident about this problem? Mark it as conquered to reduce review frequency.
                     </p>
                     <button
                       onClick={() => handleMarkAsConquered()}
-                      className="flex items-center justify-center space-x-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors shadow-md"
+                      className="flex items-center justify-center space-x-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors shadow-md w-full sm:w-auto mx-auto"
                     >
                       <Trophy className="h-5 w-5" />
                       <span>Mark as Conquered</span>
@@ -504,13 +521,15 @@ const RevisionPage: React.FC<RevisionPageProps> = ({ problems, onUpdateProblem }
                   </div>
                 )}
                 
-                <button
+                <div className="pt-2">
+                  <button
                   onClick={skipToNext}
                   className="flex items-center justify-center space-x-1 text-gray-600 hover:text-gray-800 text-sm underline"
-                >
+                  >
                   <RotateCcw className="h-3 w-3" />
                   Skip for now
-                </button>
+                  </button>
+                </div>
               </div>
             </div>
           </>
